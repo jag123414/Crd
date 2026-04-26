@@ -1,31 +1,38 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
 public class Card : MonoBehaviour
 {
-    // 변수 선언 부분
-    public TextMeshProUGUI card; 
+    public TextMeshProUGUI cardText;
     private string cardNum;
+    public float rotateSpeed = 10f;
+    public bool isClick = false;
 
-    // 게임 시작 시 한 번 실행
+    public Quaternion frontRotation = Quaternion.Euler(0, 0, 0);
+    public Quaternion backRotation = Quaternion.Euler(0, 180f, 0);
+
     void Start()
     {
-        // 0~9 사이의 랜덤 숫자를 생성해 문자로 변환
-        cardNum = Random.Range(0, 10).ToString();
-        
-        // 화면 텍스트에 숫자 표시
-        if (card != null)
-        {
-            card.text = cardNum;
-        }
+        // 시작할 때 카드는 뒷면을 보고 있게 함
+        transform.rotation = backRotation;
     }
 
-    // 매 프레임마다 실행 (회전 기능)
+    // [중요] 매니저가 숫자를 넣어줄 함수
+    public void SetCardNum(int num)
+    {
+        cardNum = num.ToString();
+        cardText.text = cardNum;
+    }
+
     void Update()
     {
-        // Y축을 기준으로 초당 20도씩 회전합니다.
-        transform.Rotate(new Vector3(0.0f, 200.0f, 0.0f) * Time.deltaTime);
+        // 클릭 여부에 따라 부드럽게 회전
+        Quaternion target = isClick ? frontRotation : backRotation;
+        transform.rotation = Quaternion.Slerp(transform.rotation, target, rotateSpeed * Time.deltaTime);
+    }
+
+    public void ClickCard()
+    {
+        isClick = !isClick;
     }
 }
