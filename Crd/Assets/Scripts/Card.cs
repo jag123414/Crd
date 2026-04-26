@@ -4,35 +4,47 @@ using TMPro;
 public class Card : MonoBehaviour
 {
     public TextMeshProUGUI cardText;
-    private string cardNum;
+    public int cardID; 
     public float rotateSpeed = 10f;
     public bool isClick = false;
+    public bool isMatched = false;
 
     public Quaternion frontRotation = Quaternion.Euler(0, 0, 0);
     public Quaternion backRotation = Quaternion.Euler(0, 180f, 0);
 
     void Start()
     {
-        // 시작할 때 카드는 뒷면을 보고 있게 함
+        if (cardText == null) cardText = GetComponentInChildren<TextMeshProUGUI>();
         transform.rotation = backRotation;
-    }
-
-    // [중요] 매니저가 숫자를 넣어줄 함수
-    public void SetCardNum(int num)
-    {
-        cardNum = num.ToString();
-        cardText.text = cardNum;
     }
 
     void Update()
     {
-        // 클릭 여부에 따라 부드럽게 회전
-        Quaternion target = isClick ? frontRotation : backRotation;
-        transform.rotation = Quaternion.Slerp(transform.rotation, target, rotateSpeed * Time.deltaTime);
+        if (!isMatched)
+        {
+            Quaternion target = isClick ? frontRotation : backRotation;
+            transform.rotation = Quaternion.Slerp(transform.rotation, target, rotateSpeed * Time.deltaTime);
+        }
+    }
+
+    // [중요] 매니저가 이 함수를 호출해서 숫자를 바꿔줍니다.
+    public void SetCardNum(int num)
+    {
+        cardID = num;
+        if (cardText != null)
+        {
+            cardText.text = cardID.ToString();
+        }
     }
 
     public void ClickCard()
     {
-        isClick = !isClick;
+        if (isMatched || isClick) return;
+        CardGame.Instance.OnCardClicked(this);
+    }
+
+    public void FlipBack()
+    {
+        isClick = false;
     }
 }
